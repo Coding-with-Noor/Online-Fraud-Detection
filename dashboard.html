@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - FraudGuard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="/static/css/dashboard.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNavbar">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <div class="brand-icon"><i class="bi bi-shield-fill-check"></i></div>
+            <div>
+                <span class="brand-name">FraudGuard</span>
+                <span class="brand-tag d-block">ML Fraud Detection</span>
+            </div>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house me-1"></i>Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/predict"><i class="bi bi-search me-1"></i>Detect Fraud</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/dashboard"><i class="bi bi-bar-chart-line me-1"></i>Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about"><i class="bi bi-info-circle me-1"></i>About</a></li>
+                <li class="nav-item ms-lg-2">
+                    <a class="btn btn-accent btn-sm" href="/predict">
+                        <i class="bi bi-plus-lg me-1"></i>New Check
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ============================================================
+     DASHBOARD LAYOUT — sidebar + main
+     ============================================================ -->
+<div class="dash-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="dash-sidebar">
+        <div class="sidebar-section">
+            <p class="sidebar-label">Overview</p>
+            <a href="#stats"       class="sidebar-link active"><i class="bi bi-grid-1x2"></i> Summary Stats</a>
+            <a href="#charts"      class="sidebar-link"><i class="bi bi-pie-chart"></i> Charts</a>
+            <a href="#trend"       class="sidebar-link"><i class="bi bi-graph-up"></i> Trend</a>
+        </div>
+        <div class="sidebar-section">
+            <p class="sidebar-label">ML Results</p>
+            <a href="#confusion"   class="sidebar-link"><i class="bi bi-grid-3x3"></i> Confusion Matrix</a>
+            <a href="#importance"  class="sidebar-link"><i class="bi bi-bar-chart-steps"></i> Feature Importance</a>
+            <a href="#modelcomp"   class="sidebar-link"><i class="bi bi-trophy"></i> Model Comparison</a>
+        </div>
+        <div class="sidebar-section">
+            <p class="sidebar-label">Data</p>
+            <a href="#history"     class="sidebar-link"><i class="bi bi-table"></i> Transaction History</a>
+        </div>
+
+        <!-- Quick model info box -->
+        <div class="sidebar-info-box mt-auto">
+            <p class="sib-title"><i class="bi bi-cpu me-1 text-accent"></i>Active Model</p>
+            <p class="sib-model">Random Forest</p>
+            <div class="sib-row">
+                <span>Accuracy</span><span class="text-accent fw-semibold">99.66%</span>
+            </div>
+            <div class="sib-row">
+                <span>Trees</span><span>100</span>
+            </div>
+            <div class="sib-row">
+                <span>Features</span><span>6</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="dash-main">
+
+        <!-- Page title row -->
+        <div class="dash-topbar">
+            <div>
+                <h1 class="dash-title">Admin Dashboard</h1>
+                <p class="dash-sub">Transaction analysis overview and ML model performance</p>
+            </div>
+            <a href="/predict" class="btn btn-accent">
+                <i class="bi bi-search me-2"></i>Check Transaction
+            </a>
+        </div>
+
+        <!-- ====================================================
+             SECTION 1 — SUMMARY STAT CARDS
+             ==================================================== -->
+        <section id="stats" class="dash-section">
+            <div class="row g-3">
+
+                <!-- Total Checked -->
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-card-icon" style="--ic-color:#60a5fa;--ic-bg:rgba(96,165,250,0.12)">
+                            <i class="bi bi-receipt-cutoff"></i>
+                        </div>
+                        <div class="stat-card-body">
+                            <p class="stat-card-label">Total Checked</p>
+                            <h3 class="stat-card-num">{{ stats.total }}</h3>
+                            <p class="stat-card-hint">transactions analyzed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fraud Detected -->
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card stat-card-danger">
+                        <div class="stat-card-icon" style="--ic-color:#f85149;--ic-bg:rgba(248,81,73,0.12)">
+                            <i class="bi bi-exclamation-octagon-fill"></i>
+                        </div>
+                        <div class="stat-card-body">
+                            <p class="stat-card-label">Fraud Detected</p>
+                            <h3 class="stat-card-num text-danger-soft">{{ stats.fraud_count }}</h3>
+                            <p class="stat-card-hint">{{ stats.fraud_rate }}% fraud rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safe Transactions -->
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card stat-card-safe">
+                        <div class="stat-card-icon" style="--ic-color:#3fb950;--ic-bg:rgba(63,185,80,0.12)">
+                            <i class="bi bi-shield-check-fill"></i>
+                        </div>
+                        <div class="stat-card-body">
+                            <p class="stat-card-label">Safe Transactions</p>
+                            <h3 class="stat-card-num text-safe-soft">{{ stats.safe_count }}</h3>
+                            <p class="stat-card-hint">{{ 100 - stats.fraud_rate }}% safe rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avg Confidence -->
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-card-icon" style="--ic-color:#00d4aa;--ic-bg:rgba(0,212,170,0.12)">
+                            <i class="bi bi-percent"></i>
+                        </div>
+                        <div class="stat-card-body">
+                            <p class="stat-card-label">Avg Confidence</p>
+                            <h3 class="stat-card-num text-accent">{{ stats.avg_confidence }}%</h3>
+                            <p class="stat-card-hint">across all predictions</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ====================================================
+             SECTION 2 — DOUGHNUT + BAR CHARTS  (Chart.js)
+             ==================================================== -->
+        <section id="charts" class="dash-section">
+            <div class="row g-3">
+
+                <!-- Fraud vs Safe Doughnut -->
+                <div class="col-md-5">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h6><i class="bi bi-pie-chart me-2 text-accent"></i>Fraud vs Safe Split</h6>
+                        </div>
+                        <div class="chart-card-body">
+                            {% if stats.total > 0 %}
+                            <div class="doughnut-wrap">
+                                <canvas id="doughnutChart"></canvas>
+                                <div class="doughnut-center">
+                                    <span class="dc-num">{{ stats.fraud_rate }}%</span>
+                                    <span class="dc-label">Fraud Rate</span>
+                                </div>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-dot" style="background:#f85149"></span>Fraud ({{ stats.fraud_count }})
+                                <span class="legend-dot ms-3" style="background:#3fb950"></span>Safe ({{ stats.safe_count }})
+                            </div>
+                            {% else %}
+                            <div class="no-data-msg">No transactions yet. <a href="/predict">Check one now →</a></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction Type Bar Chart -->
+                <div class="col-md-7">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h6><i class="bi bi-bar-chart me-2 text-accent"></i>Fraud by Transaction Type</h6>
+                        </div>
+                        <div class="chart-card-body">
+                            {% if stats.type_breakdown %}
+                            <canvas id="typeBarChart" style="max-height:220px"></canvas>
+                            {% else %}
+                            <div class="no-data-msg">No data yet. <a href="/predict">Run a check →</a></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ====================================================
+             SECTION 3 — DAILY TREND LINE CHART
+             ==================================================== -->
+        <section id="trend" class="dash-section">
+            <div class="chart-card">
+                <div class="chart-card-header d-flex justify-content-between align-items-center">
+                    <h6><i class="bi bi-graph-up me-2 text-accent"></i>7-Day Transaction Trend</h6>
+                    <span class="chart-badge">Last 7 days</span>
+                </div>
+                <div class="chart-card-body">
+                    {% if stats.daily_trend %}
+                    <canvas id="trendLineChart" style="max-height:200px"></canvas>
+                    {% else %}
+                    <div class="no-data-msg">No trend data yet. Check more transactions to see the trend.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================
+             SECTION 4 — ML CHARTS (Static PNG images)
+             ==================================================== -->
+        <section id="confusion" class="dash-section">
+            <div class="section-heading">
+                <h5><i class="bi bi-cpu text-accent me-2"></i>ML Model Performance</h5>
+                <p class="text-muted small">Generated by train_model.py — Random Forest vs Logistic Regression</p>
+            </div>
+            <div class="row g-3">
+                <!-- RF Confusion Matrix -->
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h6><i class="bi bi-grid-3x3 me-2 text-accent"></i>Random Forest — Confusion Matrix</h6>
+                        </div>
+                        <div class="chart-card-body text-center">
+                            <img src="/static/images/cm_rf.png" alt="RF Confusion Matrix"
+                                 class="img-fluid chart-img" loading="lazy">
+                        </div>
+                    </div>
+                </div>
+                <!-- LR Confusion Matrix -->
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h6><i class="bi bi-grid-3x3 me-2 text-accent"></i>Logistic Regression — Confusion Matrix</h6>
+                        </div>
+                        <div class="chart-card-body text-center">
+                            <img src="/static/images/cm_lr.png" alt="LR Confusion Matrix"
+                                 class="img-fluid chart-img" loading="lazy">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Importance + Model Comparison side by side -->
+        <section id="importance" class="dash-section">
+            <div class="row g-3">
+                <div class="col-md-7">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h6><i class="bi bi-bar-chart-steps me-2 text-accent"></i>Feature Importance (Random Forest)</h6>
+                        </div>
+                        <div class="chart-card-body text-center">
+                            <img src="/static/images/feature_importance.png" alt="Feature Importance"
+                                 class="img-fluid chart-img" loading="lazy">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5" id="modelcomp">
+                    <div class="chart-card h-100">
+                        <div class="chart-card-header">
+                            <h6><i class="bi bi-trophy me-2 text-accent"></i>Model Accuracy Comparison</h6>
+                        </div>
+                        <div class="chart-card-body text-center">
+                            <img src="/static/images/model_comparison.png" alt="Model Comparison"
+                                 class="img-fluid chart-img" loading="lazy">
+                        </div>
+                        <!-- Accuracy summary pills -->
+                        <div class="model-summary-row">
+                            <div class="ms-pill ms-pill-rf">
+                                <i class="bi bi-tree me-1"></i>RF: 99.66%
+                            </div>
+                            <div class="ms-pill ms-pill-lr">
+                                <i class="bi bi-graph-up me-1"></i>LR: 99.59%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================
+             SECTION 5 — TRANSACTION HISTORY TABLE
+             ==================================================== -->
+        <section id="history" class="dash-section">
+            <div class="chart-card">
+                <div class="chart-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h6 class="mb-0"><i class="bi bi-table me-2 text-accent"></i>Recent Transaction History</h6>
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="text" id="tableSearch" placeholder="Search type or result..."
+                               class="form-control form-control-sm table-search-input">
+                        <a href="/predict" class="btn btn-accent btn-sm">
+                            <i class="bi bi-plus-lg me-1"></i>Add New
+                        </a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    {% if recent %}
+                    <table class="dash-table" id="txTable">
+                        <thead>
+                            <tr>
+                                <th>#ID</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Sender Bal (Old→New)</th>
+                                <th>Result</th>
+                                <th>Confidence</th>
+                                <th>Checked At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in recent %}
+                            <tr class="tx-row-{{ tx.prediction | lower }}">
+                                <td class="mono text-muted">#{{ tx.id }}</td>
+                                <td class="fw-semibold">${{ "%.2f"|format(tx.amount) }}</td>
+                                <td>
+                                    <span class="type-badge {{ tx.transaction_type | lower }}">
+                                        {{ tx.transaction_type }}
+                                    </span>
+                                </td>
+                                <td class="mono small text-muted">
+                                    ${{ "%.0f"|format(tx.sender_old_bal) }} →
+                                    ${{ "%.0f"|format(tx.sender_new_bal) }}
+                                </td>
+                                <td>
+                                    {% if tx.prediction == 'FRAUD' %}
+                                    <span class="result-pill pill-fraud">
+                                        <i class="bi bi-exclamation-triangle-fill me-1"></i>FRAUD
+                                    </span>
+                                    {% else %}
+                                    <span class="result-pill pill-safe">
+                                        <i class="bi bi-check-circle-fill me-1"></i>SAFE
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="conf-mini-wrap">
+                                        <div class="conf-mini-bar">
+                                            <div class="conf-mini-fill
+                                                {{ 'fill-fraud' if tx.prediction == 'FRAUD' else 'fill-safe' }}"
+                                                 style="width:{{ tx.confidence }}%"></div>
+                                        </div>
+                                        <span class="conf-mini-pct">{{ tx.confidence }}%</span>
+                                    </div>
+                                </td>
+                                <td class="mono small text-muted">{{ tx.checked_at }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="no-data-msg p-4">
+                        <i class="bi bi-inbox display-6 d-block mb-2 text-muted"></i>
+                        No transactions checked yet.
+                        <a href="/predict">Analyze your first transaction →</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+</div><!-- end dash-wrapper -->
+
+<!-- Pass Jinja data to JavaScript as JSON -->
+<script>
+    // These variables are injected by Flask/Jinja2 and used by dashboard.js
+    const DASH_DATA = {
+        fraudCount:    {{ stats.fraud_count }},
+        safeCount:     {{ stats.safe_count }},
+        typeLabels:    {{ stats.type_breakdown | map(attribute='transaction_type') | list | tojson }},
+        typeTotals:    {{ stats.type_breakdown | map(attribute='total')            | list | tojson }},
+        typeFrauds:    {{ stats.type_breakdown | map(attribute='fraud')            | list | tojson }},
+        trendDays:     {{ stats.daily_trend   | map(attribute='day')              | list | tojson }},
+        trendTotals:   {{ stats.daily_trend   | map(attribute='total')            | list | tojson }},
+        trendFrauds:   {{ stats.daily_trend   | map(attribute='fraud')            | list | tojson }}
+    };
+</script>
+
+<!-- Chart.js (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script src="/static/js/main.js"></script>
+<script src="/static/js/dashboard.js"></script>
+</body>
+</html>

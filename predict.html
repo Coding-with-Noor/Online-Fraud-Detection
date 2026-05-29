@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detect Fraud - FraudGuard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNavbar">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <div class="brand-icon"><i class="bi bi-shield-fill-check"></i></div>
+            <div>
+                <span class="brand-name">FraudGuard</span>
+                <span class="brand-tag d-block">ML Fraud Detection</span>
+            </div>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house me-1"></i>Home</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/predict"><i class="bi bi-search me-1"></i>Detect Fraud</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="bi bi-bar-chart-line me-1"></i>Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about"><i class="bi bi-info-circle me-1"></i>About</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<section class="page-header">
+    <div class="container">
+        <div class="d-flex align-items-center gap-3">
+            <div class="brand-icon">
+                <i class="bi bi-search"></i>
+            </div>
+            <div>
+                <h1 class="mb-0">Fraud Detection</h1>
+                <p class="mb-0 mt-1">Enter transaction details to check if it's fraudulent or safe</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<section class="py-5">
+    <div class="container">
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row g-4">
+
+            <!-- LEFT: Form -->
+            <div class="col-lg-7">
+                <div class="page-form-card">
+                    <h5 class="mb-1 fw-semibold">
+                        <i class="bi bi-input-cursor-text text-accent me-2"></i>Transaction Details
+                    </h5>
+                    <p class="text-muted small mb-4">All fields are required. Make sure values are accurate for best results.</p>
+
+                    <form method="POST" action="/predict" id="fraudForm">
+
+                        <!-- Transaction Amount -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-currency-dollar me-1 text-accent"></i>Transaction Amount
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background:#161b22;border-color:#30363d;color:#7d8590">$</span>
+                                <input type="number" class="form-control" name="amount"
+                                       placeholder="e.g. 15000.00" step="0.01" min="0.01" required>
+                            </div>
+                            <div class="form-text text-muted" style="font-size:.78rem">Enter the total transfer amount in USD</div>
+                        </div>
+
+                        <!-- Transaction Type -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-tag me-1 text-accent"></i>Transaction Type
+                            </label>
+                            <select class="form-select" name="transaction_type" required>
+                                <option value="" disabled selected>-- Select a type --</option>
+                                {% for t in tx_types %}
+                                <option value="{{ t }}">{{ t }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text text-muted" style="font-size:.78rem">TRANSFER and CASH_OUT have higher fraud risk in the dataset</div>
+                        </div>
+
+                        <!-- Sender Balances -->
+                        <div class="mb-2">
+                            <label class="form-label">
+                                <i class="bi bi-person me-1 text-accent"></i>Sender Balance
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" class="form-control" name="sender_old_bal"
+                                           placeholder="Old Balance" step="0.01" min="0" required>
+                                    <div class="form-text text-muted" style="font-size:.73rem">Before transaction</div>
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control" name="sender_new_bal"
+                                           placeholder="New Balance" step="0.01" min="0" required>
+                                    <div class="form-text text-muted" style="font-size:.73rem">After transaction</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Receiver Balances -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="bi bi-person-fill me-1 text-accent"></i>Receiver Balance
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" class="form-control" name="receiver_old_bal"
+                                           placeholder="Old Balance" step="0.01" min="0" required>
+                                    <div class="form-text text-muted" style="font-size:.73rem">Before transaction</div>
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control" name="receiver_new_bal"
+                                           placeholder="New Balance" step="0.01" min="0" required>
+                                    <div class="form-text text-muted" style="font-size:.73rem">After transaction</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-accent w-100 py-3" id="submitBtn">
+                            <i class="bi bi-search me-2"></i>Analyze Transaction
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+
+            <!-- RIGHT: Info cards -->
+            <div class="col-lg-5">
+
+                <!-- Quick fill examples -->
+                <div class="page-form-card mb-4">
+                    <h6 class="fw-semibold mb-3">
+                        <i class="bi bi-lightning-fill text-warning me-2"></i>Quick Test Examples
+                    </h6>
+                    <p class="text-muted small mb-3">Click to auto-fill the form with a sample transaction</p>
+
+                    <button class="btn w-100 mb-2 example-btn" style="background:rgba(248,81,73,0.08);border:1px solid rgba(248,81,73,0.25);color:#f85149;text-align:left;font-size:.85rem"
+                        data-amount="450000" data-type="TRANSFER"
+                        data-senderold="450000" data-sendernew="0"
+                        data-recvold="0" data-recvnew="0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>High-Risk:</strong> $450,000 TRANSFER — zero-out pattern
+                    </button>
+
+                    <button class="btn w-100 mb-2 example-btn" style="background:rgba(63,185,80,0.08);border:1px solid rgba(63,185,80,0.25);color:#3fb950;text-align:left;font-size:.85rem"
+                        data-amount="250" data-type="PAYMENT"
+                        data-senderold="5000" data-sendernew="4750"
+                        data-recvold="1000" data-recvnew="1250">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <strong>Low-Risk:</strong> $250 PAYMENT — normal balance change
+                    </button>
+
+                    <button class="btn w-100 example-btn" style="background:rgba(227,179,65,0.08);border:1px solid rgba(227,179,65,0.25);color:#e3b341;text-align:left;font-size:.85rem"
+                        data-amount="180000" data-type="CASH_OUT"
+                        data-senderold="180000" data-sendernew="0"
+                        data-recvold="50000" data-recvnew="230000">
+                        <i class="bi bi-question-circle me-2"></i>
+                        <strong>Suspicious:</strong> $180,000 CASH_OUT — large amount
+                    </button>
+                </div>
+
+                <!-- Feature importance info -->
+                <div class="page-form-card">
+                    <h6 class="fw-semibold mb-3">
+                        <i class="bi bi-info-circle text-accent me-2"></i>What the Model Looks For
+                    </h6>
+                    <div class="feature-info-row">
+                        <span class="fi-label">Amount</span>
+                        <div class="fi-bar-wrap">
+                            <div class="fi-bar" style="width:88%;background:#f85149"></div>
+                        </div>
+                        <span class="fi-pct">88%</span>
+                    </div>
+                    <div class="feature-info-row">
+                        <span class="fi-label">Sender Balance Change</span>
+                        <div class="fi-bar-wrap">
+                            <div class="fi-bar" style="width:76%;background:#fb923c"></div>
+                        </div>
+                        <span class="fi-pct">76%</span>
+                    </div>
+                    <div class="feature-info-row">
+                        <span class="fi-label">Transaction Type</span>
+                        <div class="fi-bar-wrap">
+                            <div class="fi-bar" style="width:62%;background:#fbbf24"></div>
+                        </div>
+                        <span class="fi-pct">62%</span>
+                    </div>
+                    <div class="feature-info-row">
+                        <span class="fi-label">Receiver Balance</span>
+                        <div class="fi-bar-wrap">
+                            <div class="fi-bar" style="width:45%;background:#00d4aa"></div>
+                        </div>
+                        <span class="fi-pct">45%</span>
+                    </div>
+                    <p class="text-muted mt-3 mb-0" style="font-size:.78rem">
+                        Feature importance from trained Random Forest model.
+                        High amounts with zero-out sender patterns are strongest fraud indicators.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer mt-5">
+    <div class="container">
+        <div class="footer-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <p class="mb-0">&copy; 2025 <strong>FraudGuard</strong> — Academic Project</p>
+            <a href="/" class="text-muted small"><i class="bi bi-arrow-left me-1"></i>Back to Home</a>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/main.js"></script>
+<script src="/static/js/predict.js"></script>
+</body>
+</html>

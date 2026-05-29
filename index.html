@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FraudGuard - Online Payment Fraud Detection</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNavbar">
+    <div class="container">
+        <!-- Logo + Brand -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <div class="brand-icon">
+                <i class="bi bi-shield-fill-check"></i>
+            </div>
+            <div>
+                <span class="brand-name">FraudGuard</span>
+                <span class="brand-tag d-block">ML Fraud Detection</span>
+            </div>
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Nav Links -->
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/"><i class="bi bi-house me-1"></i>Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/predict"><i class="bi bi-search me-1"></i>Detect Fraud</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard"><i class="bi bi-bar-chart-line me-1"></i>Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about"><i class="bi bi-info-circle me-1"></i>About</a>
+                </li>
+                <li class="nav-item ms-lg-2">
+                    <a class="btn btn-accent" href="/predict">
+                        <i class="bi bi-lightning-fill me-1"></i>Try Now
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ============================================================
+     HERO SECTION
+     ============================================================ -->
+<section class="hero-section">
+    <div class="hero-bg-grid"></div>
+    <div class="container position-relative">
+        <div class="row align-items-center min-vh-85">
+            <!-- Left: Text -->
+            <div class="col-lg-6 hero-text-col">
+                <div class="hero-badge mb-3">
+                    <i class="bi bi-cpu me-2"></i>Powered by Machine Learning
+                </div>
+                <h1 class="hero-title">
+                    Detect Payment<br>
+                    <span class="highlight-text">Fraud Instantly</span><br>
+                    with AI
+                </h1>
+                <p class="hero-subtitle">
+                    Project that uses Random Forest & Logistic Regression to 
+                    analyze online transactions and flag potentially fraudulent activity 
+                    in real-time with high accuracy.
+                </p>
+                <div class="hero-actions d-flex flex-wrap gap-3 mt-4">
+                    <a href="/predict" class="btn btn-accent btn-lg">
+                        <i class="bi bi-search me-2"></i>Check a Transaction
+                    </a>
+                    <a href="/dashboard" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-bar-chart me-2"></i>View Dashboard
+                    </a>
+                </div>
+
+                <!-- Quick Stats Row -->
+                <div class="hero-stats d-flex flex-wrap gap-4 mt-5">
+                    <div class="stat-chip">
+                        <span class="stat-number">99.2%</span>
+                        <span class="stat-label">Model Accuracy</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-number">6M+</span>
+                        <span class="stat-label">Records Trained</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-number">2</span>
+                        <span class="stat-label">ML Algorithms</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Animated Card Visual -->
+            <div class="col-lg-6 d-none d-lg-flex justify-content-center mt-5 mt-lg-0">
+                <div class="hero-visual">
+                    <!-- Floating transaction card -->
+                    <div class="tx-card tx-card-main">
+                        <div class="tx-card-header">
+                            <i class="bi bi-credit-card-2-front"></i>
+                            <span>Transaction Analysis</span>
+                            <span class="tx-live-badge">LIVE</span>
+                        </div>
+                        <div class="tx-card-body">
+                            <div class="tx-row">
+                                <span class="tx-label">Amount</span>
+                                <span class="tx-value">$12,450.00</span>
+                            </div>
+                            <div class="tx-row">
+                                <span class="tx-label">Type</span>
+                                <span class="tx-value">TRANSFER</span>
+                            </div>
+                            <div class="tx-row">
+                                <span class="tx-label">Status</span>
+                                <span class="tx-status fraud">⚠ FRAUD DETECTED</span>
+                            </div>
+                            <div class="tx-confidence">
+                                <span>Confidence</span>
+                                <div class="conf-bar">
+                                    <div class="conf-fill" style="width: 87%"></div>
+                                </div>
+                                <span class="conf-pct">87%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating mini card 1 -->
+                    <div class="tx-card tx-card-mini mini-safe">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <span>Safe Transaction</span>
+                        <span class="mini-badge safe">96%</span>
+                    </div>
+
+                    <!-- Floating mini card 2 -->
+                    <div class="tx-card tx-card-mini mini-alert">
+                        <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                        <span>Alert Triggered</span>
+                        <span class="mini-badge warn">73%</span>
+                    </div>
+
+                    <!-- Decorative circles -->
+                    <div class="deco-circle deco-c1"></div>
+                    <div class="deco-circle deco-c2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     HOW IT WORKS SECTION
+     ============================================================ -->
+<section class="section-how py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="section-tag">Process</span>
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-sub">Three simple steps to detect fraudulent transactions</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="how-card">
+                    <div class="how-step">01</div>
+                    <div class="how-icon">
+                        <i class="bi bi-input-cursor-text"></i>
+                    </div>
+                    <h5>Enter Transaction Details</h5>
+                    <p>Fill in the transaction form with details like amount, type, 
+                    and balance information from both sender and receiver.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="how-card how-card-mid">
+                    <div class="how-step">02</div>
+                    <div class="how-icon">
+                        <i class="bi bi-gear-wide-connected"></i>
+                    </div>
+                    <h5>ML Model Analyzes Data</h5>
+                    <p>Our Random Forest model (trained on 6M+ real records) 
+                    processes the inputs and calculates fraud probability instantly.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="how-card">
+                    <div class="how-step">03</div>
+                    <div class="how-icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h5>Get Instant Results</h5>
+                    <p>See whether the transaction is fraudulent or safe, along with 
+                    the confidence percentage and risk breakdown.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     FEATURES SECTION
+     ============================================================ -->
+<section class="section-features py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="section-tag">Features</span>
+            <h2 class="section-title">What's Inside This Project</h2>
+            <p class="section-sub">Built as a final-year ML project with real dataset and real results</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Feature Cards -->
+            <div class="col-sm-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="--ic: #4ade80">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h6>Random Forest</h6>
+                    <p>Primary classifier trained on Kaggle payment dataset with high precision.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="--ic: #60a5fa">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <h6>Logistic Regression</h6>
+                    <p>Comparison model used for benchmarking Random Forest performance.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="--ic: #f472b6">
+                        <i class="bi bi-database-check"></i>
+                    </div>
+                    <h6>SQLite Database</h6>
+                    <p>All transaction checks are stored locally for dashboard statistics.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="--ic: #fb923c">
+                        <i class="bi bi-pie-chart-fill"></i>
+                    </div>
+                    <h6>Visual Dashboard</h6>
+                    <p>Charts and stats showing fraud vs. safe transaction history.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="--ic: #a78bfa">
+                        <i class="bi bi-phone"></i>
+                    </div>
+                    <h6>Responsive Design</h6>
+                    <p>Works on mobile, tablet, and desktop screens with Bootstrap 5.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="--ic: #34d399">
+                        <i class="bi bi-percent"></i>
+                    </div>
+                    <h6>Confidence Score</h6>
+                    <p>Each prediction shows probability percentage for transparency.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="--ic: #fbbf24">
+                        <i class="bi bi-table"></i>
+                    </div>
+                    <h6>Transaction History</h6>
+                    <p>Past checks are listed in a clean table on the dashboard page.</p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap" style="--ic: #f87171">
+                        <i class="bi bi-flask"></i>
+                    </div>
+                    <h6>Flask Backend</h6>
+                    <p>Lightweight Python Flask server handles API calls and DB operations.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     DATASET / MODEL INFO SECTION
+     ============================================================ -->
+<section class="section-model py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <!-- Left: model info -->
+            <div class="col-lg-6">
+                <span class="section-tag">Machine Learning</span>
+                <h2 class="section-title mt-2 mb-3">Model Performance</h2>
+                <p class="text-muted mb-4">
+                    Trained on the PaySim dataset from Kaggle — a synthetic dataset 
+                    simulating real mobile money transactions with labeled fraud cases.
+                </p>
+                <!-- Accuracy bars -->
+                <div class="model-metric">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Random Forest Accuracy</span>
+                        <span class="text-accent fw-semibold">99.2%</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill rf-fill" style="width:0%" data-target="99.2"></div>
+                    </div>
+                </div>
+                <div class="model-metric">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Logistic Regression Accuracy</span>
+                        <span class="text-accent fw-semibold">91.4%</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill lr-fill" style="width:0%" data-target="91.4"></div>
+                    </div>
+                </div>
+                <div class="model-metric">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Precision Score</span>
+                        <span class="text-accent fw-semibold">98.7%</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill pr-fill" style="width:0%" data-target="98.7"></div>
+                    </div>
+                </div>
+                <div class="model-metric">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Recall Score</span>
+                        <span class="text-accent fw-semibold">97.1%</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill rc-fill" style="width:0%" data-target="97.1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Dataset info card -->
+            <div class="col-lg-6">
+                <div class="dataset-card">
+                    <div class="dataset-card-header">
+                        <i class="bi bi-database me-2"></i> Dataset Information
+                    </div>
+                    <div class="dataset-card-body">
+                        <div class="ds-row">
+                            <span><i class="bi bi-file-earmark-text me-2 text-accent"></i>Source</span>
+                            <span>Kaggle - PaySim Synthetic Dataset</span>
+                        </div>
+                        <div class="ds-row">
+                            <span><i class="bi bi-rows me-2 text-accent"></i>Records</span>
+                            <span>6,354,407 transactions</span>
+                        </div>
+                        <div class="ds-row">
+                            <span><i class="bi bi-columns me-2 text-accent"></i>Features</span>
+                            <span>11 columns (6 used for prediction)</span>
+                        </div>
+                        <div class="ds-row">
+                            <span><i class="bi bi-exclamation-octagon me-2 text-accent"></i>Fraud Cases</span>
+                            <span>8,213 (≈ 0.13% of dataset)</span>
+                        </div>
+                        <div class="ds-row">
+                            <span><i class="bi bi-scissors me-2 text-accent"></i>Train/Test Split</span>
+                            <span>80% Training / 20% Testing</span>
+                        </div>
+                        <div class="ds-row">
+                            <span><i class="bi bi-tools me-2 text-accent"></i>Preprocessing</span>
+                            <span>Label encoding, feature scaling</span>
+                        </div>
+                        <div class="ds-cta mt-3">
+                            <a href="https://www.kaggle.com/datasets/ealaxi/paysim1" 
+                               target="_blank" class="btn btn-outline-accent btn-sm">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>View on Kaggle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     CTA SECTION
+     ============================================================ -->
+<section class="section-cta py-5">
+    <div class="container">
+        <div class="cta-box text-center">
+            <div class="cta-glow"></div>
+            <h2>Ready to Check a Transaction?</h2>
+            <p class="mt-2 mb-4">Enter transaction details and let the ML model analyze it for you instantly.</p>
+            <a href="/predict" class="btn btn-accent btn-lg me-3">
+                <i class="bi bi-search me-2"></i>Detect Fraud Now
+            </a>
+            <a href="/dashboard" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-speedometer2 me-2"></i>View Dashboard
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="site-footer">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Brand -->
+            <div class="col-lg-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="brand-icon sm">
+                        <i class="bi bi-shield-fill-check"></i>
+                    </div>
+                    <span class="brand-name">FraudGuard</span>
+                </div>
+                <p class="footer-desc">
+                    A university final-year project demonstrating machine learning-based 
+                    online payment fraud detection using Python, Flask, and Scikit-learn.
+                </p>
+                <div class="footer-badges mt-3">
+                    <span class="badge-pill">Python</span>
+                    <span class="badge-pill">Flask</span>
+                    <span class="badge-pill">Scikit-learn</span>
+                    <span class="badge-pill">SQLite</span>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-sm-6 col-lg-2">
+                <h6 class="footer-heading">Pages</h6>
+                <ul class="footer-links">
+                    <li><a href="/"><i class="bi bi-chevron-right me-1"></i>Home</a></li>
+                    <li><a href="/predict"><i class="bi bi-chevron-right me-1"></i>Detect Fraud</a></li>
+                    <li><a href="/dashboard"><i class="bi bi-chevron-right me-1"></i>Dashboard</a></li>
+                    <li><a href="/about"><i class="bi bi-chevron-right me-1"></i>About</a></li>
+                </ul>
+            </div>
+
+            <!-- Tech Stack -->
+            <div class="col-sm-6 col-lg-3">
+                <h6 class="footer-heading">Tech Stack</h6>
+                <ul class="footer-links">
+                    <li><i class="bi bi-dot text-accent"></i>Python 3.10 + Flask</li>
+                    <li><i class="bi bi-dot text-accent"></i>Scikit-learn (Random Forest)</li>
+                    <li><i class="bi bi-dot text-accent"></i>Pandas + NumPy</li>
+                    <li><i class="bi bi-dot text-accent"></i>Bootstrap 5 + Chart.js</li>
+                    <li><i class="bi bi-dot text-accent"></i>SQLite Database</li>
+                </ul>
+            </div>
+
+            <!-- Project Info -->
+            <div class="col-lg-3">
+                <h6 class="footer-heading">Project Info</h6>
+                <div class="project-info-list">
+                    <div class="pi-row">
+                        <i class="bi bi-mortarboard text-accent"></i>
+                        <span>Final Year / Semester Project</span>
+                    </div>
+                    <div class="pi-row">
+                        <i class="bi bi-diagram-3 text-accent"></i>
+                        <span>Department of Computer Science</span>
+                    </div>
+                    <div class="pi-row">
+                        <i class="bi bi-calendar text-accent"></i>
+                        <span>2024 – 2025</span>
+                    </div>
+                    <div class="pi-row">
+                        <i class="bi bi-github text-accent"></i>
+                        <a href="#" class="text-muted">View on GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="footer-divider">
+        <div class="footer-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <p class="mb-0">
+                &copy; 2025 <strong>FraudGuard</strong> — Built for Academic Purposes Only
+            </p>
+            <p class="mb-0 text-muted small">
+                Dataset: <a href="https://www.kaggle.com/datasets/ealaxi/paysim1" target="_blank">PaySim (Kaggle)</a>
+                &nbsp;|&nbsp; Made with <i class="bi bi-heart-fill text-danger"></i> using Flask + Scikit-learn
+            </p>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script src="/static/js/main.js"></script>
+
+</body>
+</html>

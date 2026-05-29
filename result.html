@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result - FraudGuard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNavbar">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <div class="brand-icon"><i class="bi bi-shield-fill-check"></i></div>
+            <div>
+                <span class="brand-name">FraudGuard</span>
+                <span class="brand-tag d-block">ML Fraud Detection</span>
+            </div>
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/predict">Detect Fraud</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- RESULT SECTION -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <!-- Result Card -->
+                {% if tx.prediction == 'FRAUD' %}
+                <div class="result-card result-fraud mb-4">
+                    <div class="result-icon-wrap fraud-icon">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <h2 class="result-title">⚠ Fraud Detected</h2>
+                    <p class="result-sub">This transaction shows patterns consistent with fraudulent activity.</p>
+                    <div class="result-confidence">
+                        <span>Confidence:</span>
+                        <div class="conf-track-lg">
+                            <div class="conf-fill-lg fraud-fill" style="width: {{ tx.confidence }}%"></div>
+                        </div>
+                        <span class="conf-num fraud-num">{{ tx.confidence }}%</span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="result-card result-safe mb-4">
+                    <div class="result-icon-wrap safe-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <h2 class="result-title">✓ Transaction Looks Safe</h2>
+                    <p class="result-sub">No fraud indicators detected. This transaction appears to be legitimate.</p>
+                    <div class="result-confidence">
+                        <span>Confidence:</span>
+                        <div class="conf-track-lg">
+                            <div class="conf-fill-lg safe-fill" style="width: {{ tx.confidence }}%"></div>
+                        </div>
+                        <span class="conf-num safe-num">{{ tx.confidence }}%</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Transaction Details Table -->
+                <div class="page-form-card mb-4">
+                    <h5 class="fw-semibold mb-4">
+                        <i class="bi bi-receipt text-accent me-2"></i>Transaction Summary
+                    </h5>
+                    <div class="tx-detail-grid">
+                        <div class="tx-detail-row">
+                            <span class="td-label"><i class="bi bi-hash me-1"></i>Transaction ID</span>
+                            <span class="td-value mono">#{{ tx.id }}</span>
+                        </div>
+                        <div class="tx-detail-row">
+                            <span class="td-label"><i class="bi bi-currency-dollar me-1"></i>Amount</span>
+                            <span class="td-value">${{ "%.2f"|format(tx.amount) }}</span>
+                        </div>
+                        <div class="tx-detail-row">
+                            <span class="td-label"><i class="bi bi-tag me-1"></i>Type</span>
+                            <span class="td-value">
+                                <span class="type-badge {{ tx.transaction_type.lower() }}">{{ tx.transaction_type }}</span>
+                            </span>
+                        </div>
+                        <div class="tx-detail-row">
+                            <span class="td-label"><i class="bi bi-clock me-1"></i>Checked At</span>
+                            <span class="td-value mono small">{{ tx.checked_at }}</span>
+                        </div>
+                        <div class="tx-detail-row">
+                            <span class="td-label"><i class="bi bi-person me-1"></i>Sender Old Balance</span>
+                            <span class="td-value">${{ "%.2f"|format(tx.sender_old_bal) }}</span>
+                        </div>
+                        <div class="tx-detail-row">
+                            <span class="td-label"><i class="bi bi-person me-1"></i>Sender New Balance</span>
+                            <span class="td-value">${{ "%.2f"|format(tx.sender_new_bal) }}</span>
+                        </div>
+                        <div class="tx-detail-row">
+                            <span class="td-label"><i class="bi bi-person-fill me-1"></i>Receiver Old Balance</span>
+                            <span class="td-value">${{ "%.2f"|format(tx.receiver_old_bal) }}</span>
+                        </div>
+                        <div class="tx-detail-row">
+                            <span class="td-label"><i class="bi bi-person-fill me-1"></i>Receiver New Balance</span>
+                            <span class="td-value">${{ "%.2f"|format(tx.receiver_new_bal) }}</span>
+                        </div>
+                        <div class="tx-detail-row">
+                            <span class="td-label"><i class="bi bi-shield me-1"></i>Prediction</span>
+                            <span class="td-value">
+                                {% if tx.prediction == 'FRAUD' %}
+                                <span class="badge" style="background:rgba(248,81,73,0.15);color:#f85149;padding:4px 12px;border-radius:100px;font-size:.8rem">FRAUD</span>
+                                {% else %}
+                                <span class="badge" style="background:rgba(63,185,80,0.15);color:#3fb950;padding:4px 12px;border-radius:100px;font-size:.8rem">LEGITIMATE</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex flex-wrap gap-3 justify-content-center">
+                    <a href="/predict" class="btn btn-accent">
+                        <i class="bi bi-search me-2"></i>Check Another Transaction
+                    </a>
+                    <a href="/dashboard" class="btn btn-outline-light">
+                        <i class="bi bi-bar-chart me-2"></i>View Dashboard
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer mt-5">
+    <div class="container">
+        <div class="footer-bottom d-flex flex-wrap justify-content-between align-items-center">
+            <p class="mb-0">&copy; 2025 <strong>FraudGuard</strong> — Academic Project</p>
+            <a href="/" class="text-muted small"><i class="bi bi-arrow-left me-1"></i>Back to Home</a>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/main.js"></script>
+</body>
+</html>
